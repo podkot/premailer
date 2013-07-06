@@ -1,4 +1,5 @@
-# encoding: UTF-8
+# -*- encoding: UTF-8 -*-
+
 require File.expand_path(File.dirname(__FILE__)) + '/helper'
 
 class TestPremailer < Premailer::TestCase
@@ -234,7 +235,7 @@ END_HTML
   end
 
   def test_input_encoding
-    html_special_characters = "Ää, Öö, Üü".encode("UTF-8")
+    html_special_characters = "Ää, Öö, Üü"
     expected_html = "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/REC-html40/loose.dtd\">\n<html><body><p>" + html_special_characters + "</p></body></html>\n"
     pm = Premailer.new(html_special_characters, :with_html_string => true, :adapter => :nokogiri, :input_encoding => "UTF-8")
     assert_equal expected_html, pm.to_inline_css
@@ -242,14 +243,14 @@ END_HTML
 
   def test_meta_encoding_downcase
     meta_encoding = '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
-    expected_html = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
+    expected_html = Regexp.new(Regexp.escape('<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'), Regexp::IGNORECASE)
     pm = Premailer.new(meta_encoding, :with_html_string => true, :adapter => :nokogiri, :input_encoding => "utf-8")
     assert_match expected_html, pm.to_inline_css
   end
 
   def test_meta_encoding_upcase
     meta_encoding = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8">'
-    expected_html = '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'
+    expected_html = Regexp.new(Regexp.escape('<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'), Regexp::IGNORECASE)
     pm = Premailer.new(meta_encoding, :with_html_string => true, :adapter => :nokogiri, :input_encoding => "UTF-8")
     assert_match expected_html, pm.to_inline_css
   end
